@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>📱 WhatsApp Bulk Sender</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .container {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 40px;
+      border-radius: 20px;
+      max-width: 800px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      animation: slideIn 0.5s ease-out;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    h2 {
+      color: #667eea;
+      margin-bottom: 30px;
+      font-size: 32px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 25px;
+    }
+
+    label {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    textarea, input[type="number"], input[type="file"] {
+      width: 100%;
+      padding: 14px;
+      border-radius: 10px;
+      border: 2px solid #e0e0e0;
+      font-size: 15px;
+      font-family: inherit;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    textarea {
+      min-height: 120px;
+      resize: vertical;
+    }
+
+    textarea:focus, input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+      margin-top: 30px;
+    }
+
+    button {
+      padding: 16px 24px;
+      border-radius: 10px;
+      border: none;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .btn-preview {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .btn-preview:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-send {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+      color: white;
+    }
+
+    .btn-send:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 25px rgba(245, 87, 108, 0.4);
+    }
+
+    .preview-section {
+      margin-top: 30px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+      border-radius: 15px;
+      min-height: 100px;
+      animation: fadeIn 0.5s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .preview-section h3 {
+      color: #667eea;
+      margin-bottom: 15px;
+      font-size: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    #output {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+      font-size: 14px;
+      color: #333;
+      line-height: 1.6;
+      box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05);
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 15px;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card .number {
+      font-size: 28px;
+      font-weight: bold;
+      color: #667eea;
+      display: block;
+    }
+
+    .stat-card .label {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: #e0e0e0;
+      border-radius: 10px;
+      overflow: hidden;
+      margin-top: 15px;
+      display: none;
+    }
+
+    .progress-bar.active {
+      display: block;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      width: 0%;
+      transition: width 0.3s ease;
+      border-radius: 10px;
+    }
+
+    .status-message {
+      padding: 12px 20px;
+      border-radius: 10px;
+      margin-top: 15px;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      font-weight: 500;
+      animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .status-message.show {
+      display: flex;
+    }
+
+    .status-message.success {
+      background: #d4edda;
+      color: #155724;
+      border-left: 4px solid #28a745;
+    }
+
+    .status-message.error {
+      background: #f8d7da;
+      color: #721c24;
+      border-left: 4px solid #dc3545;
+    }
+
+    .status-message.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border-left: 4px solid #17a2b8;
+    }
+
+    .input-hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 5px;
+      font-style: italic;
+    }
+
+    .file-upload-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+      width: 100%;
+    }
+
+    .file-upload-label {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
+      border: 2px dashed #667eea;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #f8f9ff;
+    }
+
+    .file-upload-label:hover {
+      background: #eef1ff;
+      border-color: #764ba2;
+    }
+
+    #media {
+      position: absolute;
+      left: -9999px;
+    }
+
+    .file-name {
+      font-size: 13px;
+      color: #667eea;
+      margin-top: 8px;
+      font-weight: 500;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: white;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📱 WhatsApp Bulk Sender</h2>
+
+    <div class="form-group">
+      <label>📋 Phone Numbers</label>
+      <textarea id="numbers" placeholder="Enter numbers (comma or newline separated)&#10;Example: 9004288362, 7003716714, 9876543210"></textarea>
+      <div class="input-hint">Supports 10-digit Indian mobile numbers</div>
+    </div>
+
+    <div class="form-group">
+      <label>💬 Message</label>
+      <textarea id="message" placeholder="Type your message here..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>⏱️ Delay Between Messages (seconds)</label>
+      <input id="delay" type="number" value="30" min="0" step="1" />
+      <div class="input-hint">Recommended: 20-30 seconds to avoid blocking</div>
+    </div>
+
+    <div class="form-group">
+      <label>📎 Optional Media</label>
+      <div class="file-upload-wrapper">
+        <label for="media" class="file-upload-label">
+          <span>🖼️ Choose Image or Video</span>
+        </label>
+        <input id="media" type="file" accept="image/*,video/*" />
+      </div>
+      <div id="fileName" class="file-name"></div>
+    </div>
+
+    <div class="btn-group">
+      <button class="btn-preview" onclick="prepareNumbers()">
+        🧹 Clean & Preview
+      </button>
+      <button class="btn-send" id="sendBtn" onclick="sendMessages()" disabled>
+        🚀 Send Messages
+      </button>
+    </div>
+
+    <div class="progress-bar" id="progressBar">
+      <div class="progress-fill" id="progressFill"></div>
+    </div>
+
+    <div class="status-message" id="statusMessage"></div>
+
+    <div class="preview-section">
+      <h3>📊 Preview</h3>
+      <div class="stats">
+        <div class="stat-card">
+          <span class="number" id="totalNumbers">0</span>
+          <span class="label">Total Numbers</span>
+        </div>
+        <div class="stat-card">
+          <span class="number" id="uniqueNumbers">0</span>
+          <span class="label">Unique Numbers</span>
+        </div>
+        <div class="stat-card">
+          <span class="number" id="estimatedTime">0m</span>
+          <span class="label">Est. Time</span>
+        </div>
+      </div>
+      <div id="output" style="margin-top: 15px;">Click "Clean & Preview" to see the numbers list</div>
+    </div>
+  </div>
+
+  <script>
+    let uniqueNumbers = [];
+
+    // File upload preview
+    document.getElementById('media').addEventListener('change', function(e) {
+      const fileName = e.target.files[0]?.name || '';
+      const fileNameDiv = document.getElementById('fileName');
+      if (fileName) {
+        fileNameDiv.textContent = `Selected: ${fileName}`;
+      } else {
+        fileNameDiv.textContent = '';
+      }
+    });
+
+    function showStatus(message, type) {
+      const statusDiv = document.getElementById('statusMessage');
+      statusDiv.textContent = message;
+      statusDiv.className = `status-message show ${type}`;
+      setTimeout(() => {
+        statusDiv.classList.remove('show');
+      }, 5000);
+    }
+
+    function updateStats(total, unique, delay) {
+      document.getElementById('totalNumbers').textContent = total;
+      document.getElementById('uniqueNumbers').textContent = unique;
+      
+      const totalTime = Math.ceil((unique * delay) / 60);
+      document.getElementById('estimatedTime').textContent = totalTime + 'm';
+    }
+
+    function prepareNumbers() {
+      const input = document.getElementById("numbers").value;
+      const allNumbers = input.match(/\b\d{10}\b/g) || [];
+      const total = allNumbers.length;
+      uniqueNumbers = [...new Set(allNumbers)];
+      const delay = Number(document.getElementById("delay").value) || 0;
+
+      const outputDiv = document.getElementById("output");
+      const sendBtn = document.getElementById("sendBtn");
+
+      if (uniqueNumbers.length > 0) {
+        outputDiv.textContent = `✅ ${uniqueNumbers.length} unique numbers found:\n\n${uniqueNumbers.join(", ")}`;
+        sendBtn.disabled = false;
+        showStatus(`Found ${uniqueNumbers.length} unique numbers out of ${total} total`, 'success');
+        updateStats(total, uniqueNumbers.length, delay);
+      } else {
+        outputDiv.textContent = "⚠️ No valid 10-digit numbers found. Please check your input.";
+        sendBtn.disabled = true;
+        showStatus('No valid numbers found', 'error');
+        updateStats(0, 0, 0);
+      }
+    }
+
+    async function sendMessages() {
+      const message = document.getElementById("message").value.trim();
+      const delaySec = Number(document.getElementById("delay").value) || 0;
+      const mediaFile = document.getElementById("media").files[0];
+      const sendBtn = document.getElementById("sendBtn");
+      const progressBar = document.getElementById("progressBar");
+      const progressFill = document.getElementById("progressFill");
+
+      if (uniqueNumbers.length === 0) {
+        showStatus("No numbers to send! Please click 'Clean & Preview' first.", 'error');
+        return;
+      }
+      if (!message) {
+        showStatus("Please enter a message!", 'error');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("numbers", uniqueNumbers.join(","));
+      formData.append("message", message);
+      formData.append("delayMs", delaySec * 1000);
+      if (mediaFile) formData.append("media", mediaFile);
+
+      // Update UI
+      sendBtn.disabled = true;
+      sendBtn.innerHTML = '<span class="spinner"></span> Sending...';
+      progressBar.classList.add('active');
+      progressFill.style.width = '0%';
+
+      showStatus(`Sending ${uniqueNumbers.length} messages with ${delaySec}s delay...`, 'info');
+
+      try {
+        // Simulate progress (since we can't track real progress from backend)
+        const progressInterval = setInterval(() => {
+          const currentWidth = parseFloat(progressFill.style.width) || 0;
+          if (currentWidth < 90) {
+            progressFill.style.width = (currentWidth + 10) + '%';
+          }
+        }, (delaySec * 1000) || 1000);
+
+        const res = await fetch("http://localhost:3000/send", { 
+          method: "POST", 
+          body: formData 
+        });
+        
+        clearInterval(progressInterval);
+        const data = await res.json();
+
+        if (data.success) {
+          progressFill.style.width = '100%';
+          showStatus(data.message || "✅ All messages sent successfully!", 'success');
+        } else {
+          throw new Error(data.error || 'Unknown error');
+        }
+      } catch (error) {
+        showStatus(`❌ Error: ${error.message}`, 'error');
+        console.error('Send error:', error);
+      } finally {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = '🚀 Send Messages';
+        setTimeout(() => {
+          progressBar.classList.remove('active');
+          progressFill.style.width = '0%';
+        }, 2000);
+      }
+    }
+
+    // Update estimated time when delay changes
+    document.getElementById('delay').addEventListener('input', function() {
+      if (uniqueNumbers.length > 0) {
+        updateStats(uniqueNumbers.length, uniqueNumbers.length, Number(this.value));
+      }
+    });
+  </script>
+</body>
+</html>
